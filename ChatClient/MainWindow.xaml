@@ -4,26 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="525" Closing="WindowClosing" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="400" Width="525" WindowStartupLocation="CenterScreen">
     <Grid Margin="8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
             <RowDefinition Height="1*"/>
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
-        <Grid>
-            <Button Content="Connect" Command="{Binding ConnectUserCommand}" Height="30" Width="80" HorizontalAlignment="Left" />
-            <Button Content="Disconnect" Command="{Binding DisconnectUserCommand}" Height="30" Width="80" HorizontalAlignment="Right" />
-        </Grid>
-        <TextBox Text="{Binding Name}" HorizontalAlignment="Center" Height="30" Width="70" Grid.Row="0" />
-        <ListBox Grid.Row="1" ItemsSource="{Binding Chats}">
+        <ListBox Grid.Row="0" ItemsSource="{Binding Chat}">
             <ListBox.ItemTemplate>
-                <DataTemplate >
-                    <TextBlock Text="{Binding Message}"/>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Date, StringFormat={}{0:HH:mm}}"/>
+                        <TextBlock Text=" :"/>
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="10,0,10,0"/>
+                        <TextBlock Text="{Binding Message}"/>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <TextBox Text="{Binding Message}" Grid.Row="2" />
-        <Button Content="Send" Command="{Binding SendMessageCommand}" Height="30" Width="90" HorizontalAlignment="Right" Grid.Row="2" />
+        <TextBox Text="{Binding Message}" Grid.Row="1" />
+        <Button Content="Send" Command="{Binding SendMessageCommand}" Height="30" Width="90" HorizontalAlignment="Right" Grid.Row="1" />
     </Grid>
 </Window>

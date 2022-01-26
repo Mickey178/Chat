@@ -18,5 +18,4 @@ namespace Chat.Common
         [OperationContract]
         List<UserMessageDto> GetChatHistory();
     }
-
 }

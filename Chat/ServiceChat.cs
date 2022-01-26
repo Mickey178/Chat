@@ -21,9 +21,7 @@ namespace Chat
                 OperationContext = OperationContext.Current
             };
             nextId++;
-
             users.Add(user);
-
             return user.ID;
         }
 
@@ -38,32 +36,33 @@ namespace Chat
 
         public List<UserMessageDto> GetChatHistory()
         {
-            List<UserMessage> list = new List<UserMessage>();
-            using (ApplicationContext db = new ApplicationContext())
+            var messagesFromTheDB = new List<UserMessage>();
+            using (var db = new ApplicationContext())
             {
                 foreach (var item in db.UserMessages)
                 {
-                    list.Add(item);
+                    messagesFromTheDB.Add(item);
                 }
             }
-            List<UserMessageDto> listDto = new List<UserMessageDto>();
-            foreach (var item in list)
+
+            var messagesFromDbDto = new List<UserMessageDto>();
+            foreach (var item in messagesFromTheDB)
             {
-                listDto.Add(new UserMessageDto
+                messagesFromDbDto.Add(new UserMessageDto
                 {
                     Date = item.Date,
                     Name = item.Name,
                     Message = item.Message
-                }) ;
+                });
             }
-            return listDto;
+            return messagesFromDbDto;
         }
 
         public void SendMsg(string msg, int id)
         {
             var user = users.FirstOrDefault(i => i.ID == id);
 
-            using (ApplicationContext db = new ApplicationContext())
+            using (var db = new ApplicationContext())
             {
                 db.UserMessages.Add(new UserMessage
                 {

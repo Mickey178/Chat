@@ -1,39 +1,21 @@
 ﻿using Chat.Common;
 using ChatClient.ServiceReference1;
 using System.Collections.ObjectModel;
-using System.Timers;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace ChatClient
 {
-    public class ApplicationViewModel : PropChanged 
+    public class ApplicationViewModel : PropChanged
     {
-        public bool isConnected = false;
-
         public int ID;
 
         private readonly DispatcherTimer timer;
 
-        public RelayCommand ConnectUserCommand { get; }
-
-        public RelayCommand DisconnectUserCommand { get; }
-
         public RelayCommand SendMessageCommand { get; }
 
-
-        private string name = "Name user";
-
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                name = value;
-                OnPropertyChanged();
-            }
-        }
-
         private string message;
+
         public string Message
         {
             get { return message; }
@@ -44,82 +26,59 @@ namespace ChatClient
             }
         }
 
-        public ObservableCollection<UserMessageDto> Chats { get; set; }
+        public ObservableCollection<UserMessageDto> Chat { get; set; }
 
-        public ApplicationViewModel()
+        public ApplicationViewModel() { }
+
+        public ApplicationViewModel(int ID)
         {
-            timer = new DispatcherTimer(DispatcherPriority.Normal, App.Current.Dispatcher);
-            timer.Interval = new System.TimeSpan(0,0,0,0,500);
+            timer = new DispatcherTimer(DispatcherPriority.Normal, Application.Current.Dispatcher)
+            {
+                Interval = new System.TimeSpan(0, 0, 0, 0, 500)
+            };
             timer.Tick += Timer_Tick;
             timer.Start();
-            Chats = new ObservableCollection<UserMessageDto>();
-            ConnectUserCommand = new RelayCommand(ConnectUser);
-            DisconnectUserCommand = new RelayCommand(DisconnectUser);
+            Chat = new ObservableCollection<UserMessageDto>();
             SendMessageCommand = new RelayCommand(Send);
-
+            this.ID = ID;
         }
 
         private void Timer_Tick(object sender, System.EventArgs e)
         {
-            if (!isConnected)
-            {
-                return;
-            }
+            Chat.Clear();
 
-            Chats.Clear();
-
-            using (var client = new ServiceChatClient())
-            {
-                foreach (var item in client.GetChatHistory())
-                {
-                    Chats.Add(item);
-                }
-            }
-        }
-
-        private void Send(object obj)
-        {
-            if (isConnected)
-            {
-                using(var client = new ServiceChatClient())
-                {
-                    client.SendMsg(Message, ID);
-                }
-
-                Message = "";
-            }
-        }
-
-        private void ConnectUser(object obj)
-        {
-            if (!isConnected)
+            try
             {
                 using (var client = new ServiceChatClient())
                 {
                     foreach (var item in client.GetChatHistory())
                     {
-                        Chats.Add(item);
+                        Chat.Add(item);
                     }
-                    ID = client.Connect(name);
                 }
-                isConnected = true;
+            }
+            catch
+            {
+                MessageBox.Show("error connect");
+                Application.Current.Shutdown();
             }
         }
 
-        private void DisconnectUser(object obj)
+        private void Send(object obj)
         {
-            Disconnect();
+            using (var client = new ServiceChatClient())
+            {
+                client.SendMsg(Message, ID);
+            }
+
+            Message = "";
         }
 
-        public void Disconnect()
+        public void DisconnectUser()
         {
-            if (isConnected)
+            using (var client = new ServiceChatClient())
             {
-                using (var client = new ServiceChatClient())
-                {
-                    client.Disconnect(ID);
-                }
-                isConnected = false;
+                client.Disconnect(ID);
             }
         }
     }
