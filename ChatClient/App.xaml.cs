@@ -4,6 +4,8 @@ namespace ChatClient
 {
     public partial class App : Application
     {
+        private Window mainWindow;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -18,7 +20,7 @@ namespace ChatClient
                 return;
             }
 
-            MainWindow mainWindow = new MainWindow
+            mainWindow = new MainWindow
             {
                 DataContext = new ApplicationViewModel(registViewModel.ID)
             };
@@ -29,8 +31,11 @@ namespace ChatClient
 
         protected override void OnExit(ExitEventArgs e)
         {
-            ApplicationViewModel appViewModel = new ApplicationViewModel();
-            appViewModel.DisconnectUser();
+            if (mainWindow != null)
+            {
+                ((ApplicationViewModel)mainWindow.DataContext).DisconnectUser();
+            }
+            base.OnExit(e);
         }
     }
 }

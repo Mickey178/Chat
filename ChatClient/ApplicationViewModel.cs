@@ -8,7 +8,7 @@ namespace ChatClient
 {
     public class ApplicationViewModel : PropChanged
     {
-        public int ID;
+        private readonly int ID;
 
         private readonly DispatcherTimer timer;
 
@@ -57,18 +57,32 @@ namespace ChatClient
                     }
                 }
             }
-            catch
+            catch (System.ServiceModel.EndpointNotFoundException)
             {
-                MessageBox.Show("error connect");
-                Application.Current.Shutdown();
+                ActionAfterError();
+            }
+            catch (System.ServiceModel.CommunicationObjectFaultedException)
+            {
+                ActionAfterError();
             }
         }
 
         private void Send(object obj)
         {
-            using (var client = new ServiceChatClient())
+            try
             {
-                client.SendMsg(Message, ID);
+                using (var client = new ServiceChatClient())
+                {
+                    client.SendMsg(Message, ID);
+                }
+            }
+            catch (System.ServiceModel.EndpointNotFoundException)
+            {
+                return;
+            }
+            catch (System.ServiceModel.CommunicationObjectFaultedException)
+            {
+                return;
             }
 
             Message = "";
@@ -76,10 +90,27 @@ namespace ChatClient
 
         public void DisconnectUser()
         {
-            using (var client = new ServiceChatClient())
+            try
             {
-                client.Disconnect(ID);
+                using (var client = new ServiceChatClient())
+                {
+                    client.Disconnect(ID);
+                }
             }
+            catch (System.ServiceModel.EndpointNotFoundException)
+            {
+                return;
+            }
+            catch (System.ServiceModel.CommunicationObjectFaultedException)
+            {
+                return;
+            }
+        }
+
+        private void ActionAfterError()
+        {
+            MessageBox.Show("error connect");
+            Application.Current.MainWindow.Close();
         }
     }
 }

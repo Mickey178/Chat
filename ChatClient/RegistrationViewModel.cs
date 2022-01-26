@@ -43,12 +43,21 @@ namespace ChatClient
 
                 RegistWindow.Close();
             }
-            catch (Exception)
+            catch (System.ServiceModel.EndpointNotFoundException)
             {
-                MessageBox.Show("error");
-                RegistrationResult = false;
-                RegistWindow.Close();
+                ActionAfterError(RegistWindow);
             }
+            catch (System.ServiceModel.CommunicationObjectFaultedException)
+            {
+                ActionAfterError(RegistWindow);
+            }
+        }
+
+        private void ActionAfterError(RegistrationWindow RegistWindow)
+        {
+            MessageBox.Show("error");
+            RegistrationResult = false;
+            RegistWindow.Close();
         }
     }
 }
